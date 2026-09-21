@@ -1,48 +1,133 @@
 # EnvMedic
 
-> Portable agent for identifying environment-variable usage that lacks a safe documentation surface.
+> A portable engineering agent for **environment-variable hygiene**.
 
-## What it does
+EnvMedic inspects observable project evidence, detects **undocumented environment-variable usage**, and produces an explainable improvement plan. Its purpose is not to replace specialist tooling. It provides a focused, auditable diagnostic layer that can travel across agent runtimes.
 
-EnvMedic detects common environment-variable access patterns and checks whether the project exposes an `.env.example`-style reference. It helps make runtime configuration discoverable without exposing private values.
+## What makes it different
 
-### Diagnostic fingerprint
-
-**Environment usage → documentation gap → evidence → remediation**
-
-## Why this agent is distinct
-
-EnvMedic sits between application code and deployment configuration. Its focus is not secret detection itself, but whether environment-dependent behavior is documented in a safe, reproducible way.
-
-## Workflow
+This project follows an **evidence → decision → explanation** model:
 
 ```text
-Source/config
-    ↓
-Environment-variable detector
-    ↓
-Documentation rule
-    ↓
-Evidence-backed finding
-    ↓
-Safe example configuration plan
+Project
+  ↓
+Scanner
+  ↓
+Domain Evidence
+  ↓
+Deterministic Diagnostic Rule
+  ↓
+Finding + Evidence + Confidence
+  ↓
+Improvement Plan
 ```
+
+The agent does not invent evidence. A finding is tied to what the scanner can actually observe.
+
+## Diagnostic contract
+
+| Layer | EnvMedic behavior |
+| --- | --- |
+| Domain | environment-variable hygiene |
+| Primary signal | process.env / os.getenv plus env examples |
+| Remediation | Document required variables without exposing secrets |
+| Output | Structured, explainable findings |
+| Uncertainty | Explicitly constrained by available evidence |
+
+## Portable architecture
+
+```text
+                    ┌─────────────────────┐
+                    │   Portable Agent    │
+                    │ identity + behavior  │
+                    └──────────┬──────────┘
+                               │
+              ┌────────────────┼────────────────┐
+              ↓                ↓                ↓
+          Diagnostic        Duties &         Explainability
+            Logic           Workflow           Contract
+              │
+              ↓
+        Runtime Adapters
+       ┌──────┬──────┬──────┬──────┐
+       ↓      ↓      ↓      ↓
+    OpenAI  CrewAI  Claude  Lyzr
+```
+
+The core diagnostic logic is kept separate from framework-specific adapters. This is the central design idea of the project, not four copies of the same agent wearing different hats.
+
+## Repository structure
+
+```text
+agent.yaml          # Portable identity and passport metadata
+SOUL.md             # Identity, principles, and behavior
+AGENTS.md           # Agent responsibilities
+DUTIES.md           # Maker / Checker workflow
+EXPLAINABILITY.md   # Decision, inputs, limits, and evidence contract
+core/               # Shared result model
+tools/              # Scanner and domain diagnostics
+skills/             # Declared capabilities
+workflows/          # Agent workflows
+adapters/           # Runtime-facing adapters
+tests/              # Deliberately diagnostic project fixtures
+```
+
+## Passport portability
+
+The agent is structured for the OpenGAP passport model and can be exported to:
+
+- OpenAI Agents SDK
+- CrewAI
+- Claude Code
+- Lyzr
+
+The important part is the **portable contract**: identity, behavior, duties, explainability, tools, and skills remain defined independently of a single runtime.
 
 ## Verification
 
-Includes:
+The repository includes:
+
+- Local adapter verification
+- A domain-specific broken-project fixture
 - OpenGAP-compatible passport metadata
-- environment-focused fixture
-- explainability contract
-- four framework adapters
-- automated verification tests
+- Explainability requirements
+- Export verification across the supported targets
 
-OpenGAP validation passed and all four generated exports have been exercised successfully.
+The engineering workflow is:
 
-## Design principle
+```text
+Validate passport
+    → Verify adapters
+    → Run diagnostic fixture
+    → Export with OpenGAP
+    → Inspect generated artifacts
+```
 
-**Document names, not values.** EnvMedic encourages safe configuration examples while keeping sensitive runtime values outside the repository.
+## Scope and limitations
 
-## Medic family
+EnvMedic is a focused diagnostic prototype. Its conclusions are limited to the evidence and rules implemented in this repository. It should complement, not replace, production-grade static analysis, security scanners, observability platforms, CI systems, or human review where appropriate.
 
-EnvMedic is the configuration-documentation specialist in the broader Medic family.
+## Why this project exists
+
+This repository is one member of a deliberately modular **Medic agent family**. Each agent applies the same portable passport architecture to a different engineering failure surface.
+
+That makes the collection useful as an interoperability experiment:
+
+```text
+One passport architecture
+        +
+Different diagnostic domains
+        +
+Multiple agent runtimes
+        =
+Portable engineering-agent family
+```
+
+## Challenge context
+
+Built for the **HiDevs × Lyzr Agent Passport Challenge**, exploring portable agent identity, behavior contracts, explainability, verification, and framework interoperability.
+
+## Author
+
+**Jofil Joby**  
+[GitHub](https://github.com/Jofil-Joby)
