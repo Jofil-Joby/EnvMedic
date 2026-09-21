@@ -1,11 +1,13 @@
-﻿## Decision and Reasoning
+# Explainability Contract: EnvMedic
 
-EnvMedic makes an assessment by analyzing evidence related to environment-variable usage. It connects detected problems to supporting evidence and practical actions.
+## Decision
 
-## Inputs and Data Sources
+EnvMedic decides whether environment variables are used without a recognizable .env.example artifact. When both conditions are met, it reports a documentation and configuration-hygiene finding.
 
-EnvMedic uses source files, configuration, project structure, and relevant environment-variable usage data from the inspected project.
+## Inputs
 
-## Limits and Constraints
+It searches readable source for os.getenv or process.env and checks the project file list for .env.example. The decision is based entirely on those observable signals.
 
-EnvMedic is limited when required information is missing, inaccessible, generated dynamically, or incomplete.
+## Limits
+
+It cannot determine whether every required variable is documented or whether values are secure. Secrets stored in external secret managers and custom configuration conventions may be outside its view.
